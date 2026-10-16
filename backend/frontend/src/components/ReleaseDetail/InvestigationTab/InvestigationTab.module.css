@@ -1,0 +1,441 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1040px;
+}
+
+.runHeader {
+  position: sticky;
+  top: 0;
+  background: var(--ground);
+  padding: var(--space-4) 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--line);
+}
+
+.runStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.statusText {
+  font-size: var(--t-h3);
+  font-weight: 600;
+}
+
+.enum {
+  font-family: var(--font-mono);
+  font-size: var(--t-ui);
+  font-weight: 450;
+  color: var(--ink-soft);
+}
+
+.pollingIndicator {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pollingIndicator { animation: none; }
+}
+
+.runMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.model {
+  font-family: var(--font-mono);
+}
+
+.testModelBadge {
+  padding: 2px 8px;
+  border: 1px solid var(--review);
+  border-radius: var(--radius-sm);
+  background: var(--review-tint);
+  color: var(--review);
+  font-weight: 450;
+}
+
+.elapsed {
+  margin-left: auto;
+}
+
+.staleNotice {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--review-tint);
+  border: 1px solid var(--review);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.activity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  font-size: var(--t-h2);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.traceToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: var(--t-h2);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.traceToggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.traceChevron {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.counter {
+  font-size: var(--t-meta);
+  font-weight: 400;
+  color: var(--ink-soft);
+  margin-left: auto;
+  margin-right: var(--space-3);
+}
+
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.step {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.stepHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.stepNumber {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-sunk);
+  border-radius: var(--radius-sm);
+  font-size: var(--t-meta);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stepLabels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stepLabel {
+  font-size: var(--t-ui);
+  font-weight: 450;
+}
+
+.stepRawTool {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.policyNote {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.stepTime {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.stepContent {
+  padding-left: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stepArgs, .stepResult, .stepEntities {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--t-meta);
+}
+
+.stepArgsLabel, .stepResultLabel, .stepEntitiesLabel {
+  font-weight: 450;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.stepArgsCode {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  background: var(--surface-sunk);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  word-break: break-all;
+  flex: 1;
+}
+
+.stepResultText {
+  flex: 1;
+}
+
+.stepEntities {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.stepError {
+  padding: var(--space-2);
+  background: var(--blocked-tint);
+  border: 1px solid var(--blocked);
+  border-radius: var(--radius-sm);
+  color: var(--blocked);
+  font-size: var(--t-meta);
+}
+
+.emptySteps {
+  text-align: center;
+  color: var(--ink-soft);
+  padding: var(--space-6);
+}
+
+.findings {
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.findingsText {
+  max-width: 72ch;
+}
+
+.findingsText p {
+  font-size: var(--t-body);
+  line-height: 1.6;
+  margin-bottom: var(--space-3);
+}
+
+.citedIds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.noFindings {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.noProposalNotice {
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--ink-soft);
+}
+
+.failureNotice {
+  padding: var(--space-4);
+  background: var(--blocked-tint);
+  border: 2px solid var(--blocked);
+  border-radius: var(--radius-md);
+}
+
+.failureNotice h4 {
+  color: var(--blocked);
+  margin-bottom: var(--space-2);
+}
+
+.failureExplain {
+  margin-top: var(--space-2);
+  font-size: var(--t-meta);
+}
+
+.proposals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.proposalCard {
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.proposalCard.stale {
+  border: 1.5px dashed var(--past);
+  background: var(--past-tint);
+}
+
+.proposalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.proposalAction {
+  font-size: var(--t-h3);
+  font-weight: 600;
+}
+
+.proposalStatus {
+  font-size: var(--t-ui);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.statusPending {
+  background: var(--review-tint);
+  color: var(--review);
+  border: 1px solid var(--review);
+}
+
+.statusApplied {
+  background: var(--approved-tint);
+  color: var(--approved);
+  border: 1px solid var(--approved);
+}
+
+.statusStale {
+  background: var(--past-tint);
+  color: var(--past);
+  border: 1.5px dashed var(--past);
+}
+
+.statusRejected {
+  background: var(--blocked-tint);
+  color: var(--blocked);
+  border: 1px solid var(--blocked);
+}
+
+.proposalReason {
+  font-size: var(--t-body);
+  margin-bottom: var(--space-3);
+}
+
+.proposalExplanation {
+  padding: var(--space-3);
+  background: var(--surface-sunk);
+  border-radius: var(--radius-sm);
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  margin-bottom: var(--space-3);
+}
+
+.proposalCited {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.citedLabel {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.proposalMeta {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  margin-bottom: var(--space-3);
+}
+
+.confirmDialog {
+  padding: var(--space-4);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  margin-top: var(--space-3);
+}
+
+.confirmDialog h4 {
+  margin-bottom: var(--space-2);
+}
+
+.confirmNote {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  margin-bottom: var(--space-3);
+}
+
+.confirmActions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.staleNote {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--past-tint);
+  border-radius: var(--radius-sm);
+  font-size: var(--t-meta);
+  color: var(--past);
+}
+
+.noProposals {
+  color: var(--ink-soft);
+  font-style: italic;
+}

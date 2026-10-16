@@ -1,0 +1,22 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: var(--t-meta);
+  font-weight: 450;
+  font-family: var(--font-ui);
+}
+
+.allowlisted {
+  background: var(--approved-tint);
+  color: var(--approved);
+  border: 1px solid var(--approved);
+}
+
+.untrusted {
+  background: var(--review-tint);
+  color: var(--review);
+  border: 1px solid var(--review);
+}

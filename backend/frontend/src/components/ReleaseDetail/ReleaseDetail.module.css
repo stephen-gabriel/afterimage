@@ -1,0 +1,104 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1040px;
+}
+
+.loading {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--ink-soft);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.releaseName {
+  font-size: var(--t-h1);
+  font-weight: 650;
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.revisionNumber {
+  font-family: var(--font-mono);
+  font-size: var(--t-ui);
+  color: var(--ink-soft);
+}
+
+.statusLabel {
+  font-size: var(--t-ui);
+  font-weight: 450;
+  padding: 4px 10px;
+  background: var(--surface-sunk);
+  border-radius: var(--radius-sm);
+}
+
+.pendingLabel {
+  font-size: var(--t-meta);
+  color: var(--review);
+  font-style: italic;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tab {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: var(--t-ui);
+  font-weight: 450;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab:hover {
+  color: var(--ink);
+}
+
+.tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+  font-weight: 600;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.tabBadge {
+  color: var(--approved);
+  font-size: 8px;
+}
+
+.tabContent {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .tab {
+    padding: 12px 16px;
+    white-space: nowrap;
+  }
+}

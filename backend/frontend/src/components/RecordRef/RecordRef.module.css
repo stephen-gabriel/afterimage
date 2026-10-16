@@ -1,0 +1,44 @@
+.recordRef {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.recordRef:hover {
+  border-color: var(--focus);
+  background: var(--surface-sunk);
+}
+
+.recordRef:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.recordRef.cited {
+  border-color: var(--approved);
+  box-shadow: 0 0 0 1px var(--approved);
+}
+
+.typeGlyph {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.idText {
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

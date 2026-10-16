@@ -1,0 +1,154 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1040px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.title {
+  font-size: var(--t-h2);
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.scopeSelector, .viewSelector {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.scopeButton, .viewButton {
+  padding: 6px 16px;
+  background: var(--surface);
+  border: none;
+  font-size: var(--t-ui);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.scopeButton:hover, .viewButton:hover {
+  background: var(--surface-sunk);
+}
+
+.scopeButton.active, .viewButton.active {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.scopeButton:focus-visible, .viewButton:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.loading {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--ink-soft);
+}
+
+.factLine {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.truncationBanner {
+  padding: var(--space-3) var(--space-4);
+  background: var(--review-tint);
+  border: 1px solid var(--review);
+  border-radius: var(--radius-md);
+  color: var(--review);
+  font-size: var(--t-meta);
+}
+
+.paths {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pathItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.historicalPath {
+  border: 1.5px dashed var(--past);
+  background: var(--past-tint);
+}
+
+.historicalTag {
+  font-size: var(--t-meta);
+  color: var(--past);
+  font-weight: 450;
+  white-space: nowrap;
+}
+
+.pathText {
+  font-size: var(--t-body);
+  line-height: 1.5;
+}
+
+.diagram {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: var(--space-6);
+  overflow-x: auto;
+}
+
+.diagramPlaceholder {
+  color: var(--ink-soft);
+}
+
+.diagramPlaceholder ul {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-6);
+}
+
+.diagramPlaceholder li {
+  margin-bottom: var(--space-2);
+}
+
+.diagramNote {
+  margin-top: var(--space-4);
+  font-style: italic;
+}
+
+.errorPanel {
+  padding: var(--space-4);
+  border: 1px solid var(--blocked);
+  border-radius: var(--radius-md);
+  background: var(--blocked-tint);
+  color: var(--blocked);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.retryButton {
+  padding: 6px 14px;
+  border: 1px solid var(--blocked);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--t-ui);
+  cursor: pointer;
+}

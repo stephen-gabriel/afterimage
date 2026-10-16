@@ -1,0 +1,101 @@
+.statusMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-weight: 450;
+  vertical-align: middle;
+}
+
+.statusMark.small {
+  font-size: var(--t-meta);
+}
+
+.statusMark.medium {
+  font-size: var(--t-ui);
+}
+
+.statusMark.large {
+  font-size: var(--t-status);
+  font-weight: 650;
+}
+
+.svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.statusMark.small .svg {
+  width: 14px;
+  height: 14px;
+}
+
+.statusMark.large .svg {
+  width: 36px;
+  height: 36px;
+}
+
+.circleFill {
+  fill: var(--approved);
+}
+
+.circleStroke {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.halfFill {
+  fill: var(--ink);
+}
+
+.squareFill {
+  fill: var(--blocked);
+}
+
+.cross {
+  stroke: var(--surface);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.historicalCircle {
+  fill: none;
+  stroke: var(--past);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+
+.historicalSquare {
+  fill: none;
+  stroke: var(--past);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  rx: 2;
+}
+
+.historical {
+  color: var(--past);
+}
+
+.historicalLabel {
+  color: var(--past);
+}
+
+.pending {
+  position: relative;
+}
+
+.pendingOverlay {
+  position: absolute;
+  inset: 0;
+  background: var(--hatch-pattern);
+  opacity: var(--hatch-opacity);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.label {
+  white-space: nowrap;
+}

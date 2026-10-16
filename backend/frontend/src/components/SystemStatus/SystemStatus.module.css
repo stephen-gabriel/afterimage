@@ -1,0 +1,91 @@
+.container { position: relative; display: inline-block; max-width: 100%; min-width: 0; }
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: var(--t-ui);
+  color: var(--ink);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.trigger:hover { background: var(--surface-sunk); }
+
+.trigger:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ready { background: var(--approved); }
+
+.notReady { background: var(--blocked); }
+
+.text { font-size: var(--t-meta); }
+
+.popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  min-width: 200px;
+  max-width: min(320px, 90vw);
+  z-index: 100;
+}
+
+.details {
+  margin-top: 8px;
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.loading, .error { font-size: var(--t-meta); color: var(--ink-soft); }
+
+.testDoubleBadge {
+  margin-left: var(--space-2);
+  padding: 2px 8px;
+  border: 2px solid var(--blocked);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunk);
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  font-weight: 600;
+  color: var(--blocked);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.testDoubleDetail {
+  margin-top: 8px;
+  font-size: var(--t-meta);
+  color: var(--blocked);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .testDoubleBadge {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    margin-left: 0;
+  }
+}

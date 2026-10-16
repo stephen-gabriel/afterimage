@@ -1,0 +1,21 @@
+.panel {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-sunk);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.icon {
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.text {
+  flex: 1;
+  line-height: 1.5;
+}

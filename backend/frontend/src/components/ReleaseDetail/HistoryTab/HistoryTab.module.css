@@ -1,0 +1,171 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1040px;
+}
+
+.title {
+  font-size: var(--t-h2);
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--ink-soft);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.decisionRow {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.rail {
+  width: 24px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.railLine {
+  width: 2px;
+  background: var(--line);
+  height: 100%;
+}
+
+.railLineActive {
+  background: var(--ink);
+}
+
+.decisionCard {
+  flex: 1;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.current {
+  border: 2px solid var(--ink);
+  background: var(--surface);
+}
+
+.ghost {
+  border: 1.5px dashed var(--past);
+  background: var(--past-tint);
+}
+
+.decisionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.historicalLabel {
+  font-size: var(--t-meta);
+  color: var(--past);
+  font-style: italic;
+}
+
+.decisionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  margin-bottom: var(--space-3);
+}
+
+.revision, .policy, .time {
+  font-family: var(--font-mono);
+}
+
+.reasonCodes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.reasonCodesLabel {
+  font-size: var(--t-meta);
+  font-weight: 450;
+}
+
+.reasonCode {
+  font-family: var(--font-mono);
+  font-size: var(--t-meta);
+  padding: 2px 8px;
+  background: var(--surface-sunk);
+  border-radius: var(--radius-sm);
+}
+
+.explanation {
+  font-size: var(--t-body);
+  margin-bottom: var(--space-3);
+  max-width: 72ch;
+}
+
+.supporting {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.supportingLabel {
+  font-size: var(--t-meta);
+  font-weight: 450;
+}
+
+.supersession {
+  padding: var(--space-3);
+  background: var(--surface-sunk);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.replacedBy, .replaces {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: var(--t-meta);
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: left;
+}
+
+.expandButton:hover { color: var(--ink); }
+
+.expandButton:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.evidencePath {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.pathItem {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+  margin-bottom: var(--space-2);
+}

@@ -1,0 +1,101 @@
+:root {
+  --ground: #EDEFF3;
+  --surface: #FAFBFC;
+  --surface-sunk: #E2E6EC;
+  --ink: #18202E;
+  --ink-soft: #566074;
+  --line: #C5CBD6;
+  --approved: #0B6B52;
+  --approved-tint: #DCEFE8;
+  --review: #8F5200;
+  --review-tint: #F8E8CC;
+  --blocked: #A8261C;
+  --blocked-tint: #F6DAD6;
+  --past: #5E4B9A;
+  --past-tint: #E6E1F3;
+  --focus: #2457D6;
+
+  --t-status: 40px / 44px;
+  --t-h1: 28px / 34px;
+  --t-h2: 20px / 28px;
+  --t-h3: 16px / 24px;
+  --t-body: 16px / 24px;
+  --t-ui: 14px / 20px;
+  --t-meta: 13px / 18px;
+
+  --font-ui: 'Schibsted Grotesk Variable', 'Schibsted Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Spline Sans Mono Variable', 'Spline Sans Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --radius-status: 9999px;
+
+  --hatch-pattern: repeating-linear-gradient(45deg, var(--ink) 0, var(--ink) 2px, transparent 2px, transparent 6px);
+  --hatch-opacity: 0.6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #12161F;
+    --surface: #1A2030;
+    --surface-sunk: #0E121A;
+    --ink: #E8ECF4;
+    --ink-soft: #A3ADC2;
+    --line: #2E3750;
+    --approved: #4FC9A2;
+    --approved-tint: #12302A;
+    --review: #F0B45A;
+    --review-tint: #33280F;
+    --blocked: #FF8A7D;
+    --blocked-tint: #3A1714;
+    --past: #B5A5F0;
+    --past-tint: #241F3A;
+    --focus: #8DB0FF;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #12161F;
+  --surface: #1A2030;
+  --surface-sunk: #0E121A;
+  --ink: #E8ECF4;
+  --ink-soft: #A3ADC2;
+  --line: #2E3750;
+  --approved: #4FC9A2;
+  --approved-tint: #12302A;
+  --review: #F0B45A;
+  --review-tint: #33280F;
+  --blocked: #FF8A7D;
+  --blocked-tint: #3A1714;
+  --past: #B5A5F0;
+  --past-tint: #241F3A;
+  --focus: #8DB0FF;
+}
+
+:root[data-theme="light"] {
+  --ground: #EDEFF3;
+  --surface: #FAFBFC;
+  --surface-sunk: #E2E6EC;
+  --ink: #18202E;
+  --ink-soft: #566074;
+  --line: #C5CBD6;
+  --approved: #0B6B52;
+  --approved-tint: #DCEFE8;
+  --review: #8F5200;
+  --review-tint: #F8E8CC;
+  --blocked: #A8261C;
+  --blocked-tint: #F6DAD6;
+  --past: #5E4B9A;
+  --past-tint: #E6E1F3;
+  --focus: #2457D6;
+}

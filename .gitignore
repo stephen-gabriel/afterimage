@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage / artifacts
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+
+# Local verification scaffolding (not part of the published app)
+smoke-test/
+_build_plan/
+docs/screenshots/
+
+# Browser / automation leftovers
+.cache/
+.playwright/
+puppeteer/
+*.png
+*.webm
+*.mp4
+*.mov
+
+# Temporary / local tooling
+tmp/
+.temp/
+.opencode/
+
+# Local debug/probe harnesses (not published)
+backend/src/test/probe*.ts
+backend/src/test/debug*.ts
+backend/src/test/check-*.ts
+backend/src/test/repair-*.ts
+backend/src/test/integration2.ts
+backend/src/test/reset.ts
