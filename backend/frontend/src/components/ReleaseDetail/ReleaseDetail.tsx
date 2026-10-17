@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, type KeyboardEvent } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { getRelease, postRun, getRun, listRuns, applyProposal, RevisionStore } from '../../api/client';
+import { getRelease, postRun, getRun, listRuns, applyProposal, RevisionStore, normalizeError, type UiError } from '../../api/client';
+import { getErrorMessage } from '../../api/errors';
 import type { ReleaseDetail as ReleaseDetailType, RunDetail } from '../../api/types';
 import { useWorkspaceRevision } from '../../hooks/useRevision';
 import { StatusTab } from './StatusTab/StatusTab';
@@ -9,6 +10,7 @@ import { HistoryTab } from './HistoryTab/HistoryTab';
 import { ConnectionsTab } from './ConnectionsTab/ConnectionsTab';
 import { EmptyState } from '../EmptyState/EmptyState';
 import { ErrorPanel } from '../ErrorPanel/ErrorPanel';
+import { Button } from '../Button/Button';
 import { getStatusLabel } from '../../lib/format';
 import styles from './ReleaseDetail.module.css';
 
@@ -29,10 +31,21 @@ export function ReleaseDetail() {
   const [discoveringRuns, setDiscoveringRuns] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
+  const [conflictError, setConflictError] = useState<UiError | null>(null);
+  const [applyingProposalId, setApplyingProposalId] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
   const workspaceRevision = useWorkspaceRevision();
 
-  const proposals = run?.proposals ?? [];
+  const proposals = (() => {
+    const list = run?.proposals ?? [];
+    const seen = new Set<string>();
+    return list.filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)));
+  })();
+
+  // A conflict belongs to the run it was raised against; switching runs starts clean.
+  useEffect(() => {
+    setConflictError(null);
+  }, [runId]);
 
   useEffect(() => {
     if (!releaseId) return;
@@ -116,8 +129,28 @@ export function ReleaseDetail() {
     return () => clearInterval(interval);
   }, [isPolling, runId]);
 
+  const refetchRunAndRelease = async () => {
+    if (runId) {
+      try {
+        const res = await getRun(runId);
+        setRun(res.data);
+      } catch {
+        // Keep the current view; the conflict banner already reports failures.
+      }
+    }
+    if (releaseId) {
+      try {
+        const res = await getRelease(releaseId);
+        setRelease(res.data);
+      } catch {
+        // Keep the current view; the conflict banner already reports failures.
+      }
+    }
+  };
+
   const handleInvestigate = async () => {
     if (!releaseId || !release) return;
+    setConflictError(null);
     try {
       const expectedRevision = RevisionStore.get();
       const res = await postRun(releaseId, expectedRevision);
@@ -128,22 +161,28 @@ export function ReleaseDetail() {
         return next;
       });
     } catch (e) {
-      setError(e);
+      // Stay on screen with an inline recovery notice — never replace the page.
+      setConflictError(normalizeError(e));
+      getRelease(releaseId)
+        .then((res) => setRelease(res.data))
+        .catch(() => {});
     }
   };
 
   const handleApplyProposal = async (proposalId: string) => {
+    setConflictError(null);
+    setApplyingProposalId(proposalId);
     try {
       const expectedRevision = RevisionStore.get();
       const idempotencyKey = crypto.randomUUID();
       await applyProposal(proposalId, expectedRevision, idempotencyKey);
-      // Refetch run (server marks sibling proposals STALE) and release.
-      if (runId) {
-        getRun(runId).then((res) => setRun(res.data)).catch(() => {});
-      }
-      getRelease(releaseId!).then((res) => setRelease(res.data)).catch(() => {});
     } catch (e) {
-      setError(e);
+      setConflictError(normalizeError(e));
+    } finally {
+      // Always refetch authoritative state: on success the Applied card and its
+      // STALE siblings come back; on failure the server's persisted outcome does.
+      await refetchRunAndRelease();
+      setApplyingProposalId(null);
     }
   };
 
@@ -207,6 +246,39 @@ export function ReleaseDetail() {
         </div>
       </header>
 
+      {conflictError && (
+        <div className={styles.conflictBanner} role="alert" data-testid="apply-conflict">
+          <p className={styles.conflictMessage}>{getErrorMessage(conflictError)}</p>
+          {conflictError.code === 'STALE_REVISION' && (
+            <p className={styles.conflictHint}>
+              Nothing was changed. The records moved on after this action was started, so the
+              outdated proposal was not applied. Start a new investigation to get a proposal for
+              the current records.
+            </p>
+          )}
+          <div className={styles.conflictActions}>
+            {conflictError.code === 'STALE_REVISION' && (
+              <Button
+                variant="primary"
+                size="small"
+                onClick={handleInvestigate}
+                data-testid="investigate-again"
+              >
+                Investigate again
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={() => setConflictError(null)}
+              data-testid="dismiss-conflict"
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
       <nav
         className={styles.tabs}
         role="tablist"
@@ -261,6 +333,8 @@ export function ReleaseDetail() {
             onApplyProposal={handleApplyProposal}
             proposals={proposals}
             onOpenInspector={openInspector}
+            workspaceRevision={workspaceRevision}
+            applyingProposalId={applyingProposalId}
           />
         )}
 

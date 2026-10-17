@@ -212,7 +212,7 @@ export async function getRun(runId: string): Promise<RunContext | null> {
             run.status as status, run.provider as provider, run.model as model,
             run.steps as steps, run.findings as findings,
             run.completionReason as completionReason, run.error as error,
-            collect(p.id) as proposalIds`,
+            collect(DISTINCT p.id) as proposalIds`,
     { runId, wsId: FIXED_WORKSPACE_ID }
   );
   
@@ -267,7 +267,7 @@ export async function listRuns(releaseId?: string, cursor?: string, limit: numbe
            run.status as status, run.startedAt as startedAt, run.endedAt as endedAt,
            run.completionReason as completionReason, run.snapshotRevision as snapshotRevision,
            run.eventId as eventId,
-           collect(p.id) as proposalIds
+           collect(DISTINCT p.id) as proposalIds
     ORDER BY run.startedAt DESC
     LIMIT $limit
   `;
@@ -538,6 +538,14 @@ async function getProposal(proposalId: string): Promise<any> {
   return result.data[0]?.p || null;
 }
 
+async function getCurrentWorkspaceRevision(): Promise<number> {
+  const result = await runCypher(
+    `MATCH (w:Workspace {id: $wsId}) RETURN w.revision as revision`,
+    { wsId: FIXED_WORKSPACE_ID }
+  );
+  return result.data[0]?.revision ?? 0;
+}
+
 export async function applyProposal(
   proposalId: string,
   expectedRevision: number,
@@ -575,7 +583,28 @@ export async function applyProposal(
     if (proposal.status === 'STALE') {
       return { success: false, error: 'Proposal is stale (workspace changed since creation)' };
     }
+
+    // Authoritative guard: compare the proposal's snapshot revision against the
+    // current workspace revision, not just the client's copy. A proposal created
+    // before a concurrent apply carries an outdated revision even when the client
+    // sends the current one, so this is what makes late-created siblings safe.
+    const currentWsRev = await getCurrentWorkspaceRevision();
+    if (proposal.expectedRevision !== currentWsRev) {
+      if (proposal.status === 'PENDING') {
+        await runCypher(
+          `MATCH (p:Proposal {id: $proposalId, workspaceId: $wsId})
+           SET p.status = 'STALE'`,
+          { proposalId, wsId: FIXED_WORKSPACE_ID }
+        );
+      }
+      return {
+        success: false,
+        error: `STALE_REVISION: proposal targets workspace revision ${proposal.expectedRevision}, current is ${currentWsRev}`,
+      };
+    }
     if (proposal.expectedRevision !== expectedRevision) {
+      // The proposal is current but the client's view is not — reject without
+      // marking the proposal stale; the client only needs to refetch.
       return { success: false, error: `STALE_REVISION: Expected ${proposal.expectedRevision}, current is ${expectedRevision}` };
     }
 
@@ -602,11 +631,16 @@ export async function applyProposal(
         { proposalId, wsId: FIXED_WORKSPACE_ID, appliedAt: nowISO(), decisionId: applyResult.decisionId || null, taskId: applyResult.taskId || null }
       );
       
+      // Invalidate every pending sibling that could now be out of date: same-run
+      // proposals (previous behaviour) plus anything — in any run — still pinned
+      // to an older workspace revision.
+      const wsAfter = applyResult.newWorkspaceRevision ?? (await getCurrentWorkspaceRevision());
       await runCypher(
-        `MATCH (p:Proposal {workspaceId: $wsId, runId: $runId})
+        `MATCH (p:Proposal {workspaceId: $wsId})
          WHERE p.id <> $proposalId AND p.status = 'PENDING'
+           AND (p.runId = $runId OR p.expectedRevision < $wsAfter)
          SET p.status = 'STALE'`,
-        { proposalId, wsId: FIXED_WORKSPACE_ID, runId: proposal.runId }
+        { proposalId, wsId: FIXED_WORKSPACE_ID, runId: proposal.runId, wsAfter }
       );
     }
 

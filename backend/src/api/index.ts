@@ -367,12 +367,20 @@ function mapRunStepDto(step: any): any {
   };
 }
 
-function mapProposalDto(p: any): any {
+function mapProposalDto(p: any, wsRev?: number): any {
+  // Read-path staleness: a PENDING proposal pinned to an older workspace
+  // revision is presented as STALE even when no apply attempt has persisted it
+  // yet, so refetched state is authoritative for clients.
+  const derivedStale =
+    p.status === 'PENDING' &&
+    typeof p.expectedRevision === 'number' &&
+    typeof wsRev === 'number' &&
+    p.expectedRevision < wsRev;
   return {
     id: p.id,
     runId: p.runId,
     actionType: p.actionType,
-    status: p.status,
+    status: derivedStale ? 'STALE' : p.status,
     reason: p.reason || '',
     citedIds: p.citedIds || [],
     expectedRevision: p.expectedRevision,
@@ -400,12 +408,13 @@ function mapRunSummaryDto(run: any): any {
   };
 }
 
-async function buildRunDetailDto(runId: string): Promise<any | null> {
+async function buildRunDetailDto(runId: string, wsRev?: number): Promise<any | null> {
   const run = await getRun(runId);
   if (!run) return null;
 
-  const proposalRows = await Promise.all(run.proposals.map((pid) => getProposal(pid)));
-  const proposals = proposalRows.filter(Boolean).map(mapProposalDto);
+  const proposalIds = [...new Set(run.proposals)];
+  const proposalRows = await Promise.all(proposalIds.map((pid) => getProposal(pid)));
+  const proposals = proposalRows.filter(Boolean).map((p) => mapProposalDto(p, wsRev));
 
   return {
     runId: run.runId,
@@ -936,13 +945,13 @@ apiRouter.get('/agent/runs', async (req: Request, res: Response) => {
 apiRouter.get('/agent/runs/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const detail = await buildRunDetailDto(id);
+    const wsRev = await getWorkspaceRevision();
+    const detail = await buildRunDetailDto(id, wsRev);
 
     if (!detail) {
       return res.status(404).json(errorEnvelope('NOT_FOUND', 'Run not found', false));
     }
 
-    const wsRev = await getWorkspaceRevision();
     res.json(successEnvelope(detail, { workspaceRevision: wsRev }));
   } catch (error) {
     res.status(500).json(errorEnvelope('DB_UNAVAILABLE', 'Failed to retrieve run', true));
@@ -959,7 +968,7 @@ apiRouter.get('/proposals/:id', async (req: Request, res: Response) => {
     }
 
     const wsRev = await getWorkspaceRevision();
-    res.json(successEnvelope(mapProposalDto(proposal), { workspaceRevision: wsRev }));
+    res.json(successEnvelope(mapProposalDto(proposal, wsRev), { workspaceRevision: wsRev }));
   } catch (error) {
     res.status(500).json(errorEnvelope('DB_UNAVAILABLE', 'Failed to retrieve proposal', true));
   }

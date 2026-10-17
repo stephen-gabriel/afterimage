@@ -49,6 +49,33 @@
   font-style: italic;
 }
 
+.conflictBanner {
+  padding: var(--space-4);
+  background: var(--blocked-tint);
+  border: 2px solid var(--blocked);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.conflictMessage {
+  font-size: var(--t-body);
+  font-weight: 500;
+  color: var(--blocked);
+}
+
+.conflictHint {
+  font-size: var(--t-meta);
+  color: var(--ink-soft);
+}
+
+.conflictActions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
 .tabs {
   display: flex;
   gap: 2px;

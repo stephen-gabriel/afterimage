@@ -15,6 +15,8 @@ interface InvestigationTabProps {
   onApplyProposal: (proposalId: string) => void;
   proposals: Proposal[];
   onOpenInspector: (type: string, id: string) => void;
+  workspaceRevision: number;
+  applyingProposalId: string | null;
 }
 
 const TOOL_LABELS: Record<string, string> = {
@@ -33,6 +35,8 @@ export function InvestigationTab({
   onApplyProposal,
   proposals,
   onOpenInspector,
+  workspaceRevision,
+  applyingProposalId,
 }: InvestigationTabProps) {
   const [isPolling, setIsPolling] = useState(false);
   const [traceOpen, setTraceOpen] = useState(false);
@@ -161,6 +165,10 @@ export function InvestigationTab({
             proposal={proposal}
             onApply={onApplyProposal}
             onOpenInspector={onOpenInspector}
+            onRunAgain={onRunAgain}
+            workspaceRevision={workspaceRevision}
+            applying={applyingProposalId === proposal.id}
+            applyDisabled={applyingProposalId !== null}
           />
         ))}
         {proposals.length === 0 && !isRunning && (
@@ -274,19 +282,37 @@ function ProposalCard({
   proposal,
   onApply,
   onOpenInspector,
+  onRunAgain,
+  workspaceRevision,
+  applying,
+  applyDisabled,
 }: {
   proposal: Proposal;
   onApply: (id: string) => void;
   onOpenInspector: (type: string, id: string) => void;
+  onRunAgain: () => void;
+  workspaceRevision: number;
+  applying: boolean;
+  applyDisabled: boolean;
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  // The server derives STALE on refetch; this mirrors it for the window before
+  // (or instead of) a refetch so an outdated Apply can never be clicked.
+  const staleByRevision =
+    proposal.status === 'PENDING' &&
+    workspaceRevision > 0 &&
+    proposal.expectedRevision < workspaceRevision;
+  const isStale = proposal.status === 'STALE' || staleByRevision;
+  const displayStatus = isStale ? 'STALE' : proposal.status;
+  const canApply = proposal.status === 'PENDING' && !isStale && !applying;
+
   return (
-    <div className={`${styles.proposalCard} ${proposal.status === 'STALE' ? styles.stale : ''}`} data-testid={`proposal-card-${proposal.id}`}>
+    <div className={`${styles.proposalCard} ${isStale ? styles.stale : ''}`} data-testid={`proposal-card-${proposal.id}`}>
       <div className={styles.proposalHeader}>
         <span className={styles.proposalAction}>{getProposalActionLabel(proposal.actionType)}</span>
-        <span className={`${styles.proposalStatus} ${getStatusClass(proposal.status)}`}>
-          {getStatusLabel(proposal.status)}
+        <span className={`${styles.proposalStatus} ${getStatusClass(displayStatus)}`}>
+          {getStatusLabel(displayStatus)}
         </span>
       </div>
 
@@ -313,8 +339,14 @@ function ProposalCard({
         Based on workspace revision {proposal.expectedRevision}
       </div>
 
-      {proposal.status === 'PENDING' && !confirmOpen && (
-        <Button onClick={() => setConfirmOpen(true)} variant="primary" data-testid="apply-proposal">
+      {canApply && !confirmOpen && (
+        <Button
+          onClick={() => setConfirmOpen(true)}
+          variant="primary"
+          disabled={applyDisabled}
+          loading={applying}
+          data-testid="apply-proposal"
+        >
           Apply proposal
         </Button>
       )}
@@ -338,10 +370,21 @@ function ProposalCard({
         </div>
       )}
 
-      {proposal.status === 'STALE' && (
-        <p className={styles.staleNote}>
-          Records changed after this run started. Run the investigation again to get a proposal for the current records.
-        </p>
+      {isStale && (
+        <div className={styles.staleNote} data-testid="stale-note">
+          <p>
+            Records changed after this run started, so this proposal can no longer be applied.
+            Run the investigation again to get a proposal for the current records.
+          </p>
+          <Button
+            onClick={onRunAgain}
+            variant="primary"
+            size="small"
+            data-testid="stale-investigate-again"
+          >
+            Investigate again
+          </Button>
+        </div>
       )}
     </div>
   );
