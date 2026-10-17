@@ -11,7 +11,8 @@
     "test:integration": "ts-node src/test/integration.ts",
     "test:stage2": "ts-node src/test/stage2.ts",
     "test:stage3": "ts-node src/test/stage3.ts",
-    "test:stale": "ts-node src/test/stale-apply.ts"
+    "test:stale": "ts-node src/test/stale-apply.ts",
+    "test:reassessment": "ts-node src/test/reassessment.ts"
   },
   "keywords": [],
   "author": "",

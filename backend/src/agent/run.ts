@@ -46,6 +46,21 @@ interface ProposalValidationResult {
   citedIds: string[];
 }
 
+async function hasRecordedDecisionForRevision(releaseId: string, revisionId: string): Promise<boolean> {
+  const pointer = await runCypher(
+    `MATCH (r:Release {id: $releaseId, workspaceId: $wsId}) RETURN r.currentDecisionId as currentDecisionId`,
+    { releaseId, wsId: FIXED_WORKSPACE_ID }
+  );
+  const decisionId = pointer.data[0]?.currentDecisionId ?? null;
+  if (!decisionId) return false;
+  const assessed = await runCypher(
+    `MATCH (d:Decision {id: $decisionId, workspaceId: $wsId})-[:ASSESSES]->(rev:ReleaseRevision {id: $revisionId, workspaceId: $wsId})
+     RETURN d.id as id`,
+    { decisionId, revisionId, wsId: FIXED_WORKSPACE_ID }
+  );
+  return assessed.data.length > 0;
+}
+
 async function validateProposalRequired(
   releaseId: string,
   revisionId: string,
@@ -132,7 +147,7 @@ async function validateProposalRequired(
   }
 
   // Rule 5: SATISFIED with OPEN task → RESOLVE_EVIDENCE_REQUEST
-  const openTasks = await listTasks(evaluation.releaseId, 'OPEN');
+  const openTasks = await listTasks(releaseId, 'OPEN');
   const satisfiedWithTask = evaluation.requirements.find(r => 
     r.result === 'SATISFIED' && 
     openTasks.some(t => t.requirementId === r.requirementId && t.revisionId === revisionId)
@@ -152,7 +167,29 @@ async function validateProposalRequired(
     }
   }
 
-  // Rule 6: APPROVED with current decision APPROVED → no proposal needed
+  // Rule 6: No recorded decision for the investigated revision → RECORD_REASSESSMENT.
+  // An evaluation result (e.g. APPROVED) is a computed assessment, not a recorded
+  // decision. Without a Decision that assesses this revision, release state is
+  // unrecorded and must be recorded via explicit reassessment — even when the
+  // evaluation would approve. Skipped for incomplete evaluations (nothing can be
+  // decided yet) and when a RECORD_REASSESSMENT proposal is already pending.
+  if (!evaluation.evaluationIncomplete && evaluation.requirements.length > 0) {
+    const decisionRecorded = await hasRecordedDecisionForRevision(releaseId, revisionId);
+    if (!decisionRecorded) {
+      const hasPending = pendingProposals.some(p => p.actionType === 'RECORD_REASSESSMENT');
+      if (!hasPending) {
+        return {
+          proposalRequired: true,
+          requiredAction: 'RECORD_REASSESSMENT',
+          reason: `Release ${releaseId} has no recorded decision for revision ${revisionId}. An evaluation result is not a decision; propose RECORD_REASSESSMENT to record one.`,
+          requirementId: null,
+          citedIds: evaluation.supportedByEvidenceIds || [],
+        };
+      }
+    }
+  }
+
+  // Rule 7: a decision is already recorded for this revision and no other rule applies
   return { proposalRequired: false, requiredAction: null, reason: '', requirementId: null, citedIds: [] };
 }
 
@@ -442,7 +479,10 @@ export async function executeRun(runId: string): Promise<RunContext> {
         // Server-side validation: check if evaluation requires a proposal
         const validationResult = await validateProposalRequired(run.releaseId, run.revisionId, run.proposals);
         if (!validationResult.proposalRequired) {
-          if (message.content && message.content.includes('propose_review_action')) {
+          // Classify from what this run actually submitted — not from findings
+          // prose, which frequently omits the tool name and misclassified runs
+          // that DID propose actions as NO_ACTION_NEEDED.
+          if (run.proposals.length > 0) {
             completionReason = 'PROPOSED_ACTIONS';
           } else if (message.content && message.content.includes('INSUFFICIENT_EVIDENCE')) {
             completionReason = 'INSUFFICIENT_EVIDENCE';

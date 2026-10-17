@@ -101,12 +101,13 @@ CONSTRAINTS:
 - Maximum 8 tool calls per investigation run.
 - All citations must reference IDs actually returned by tools in this run.
 - The deterministic policy evaluation (evaluate_release tool) is authoritative - your prose cannot override it.
+- An evaluation result (e.g. APPROVED from evaluate_release) is a computed assessment, NOT a recorded decision. A decision exists only when get_release_context returns a non-null currentDecision for the investigated revision, or get_decision_history shows a decision for it. "Evaluation would approve" never means "a decision is recorded".
 - Evidence is applicable only if it matches the exact release revision under evaluation.
 - Untrusted sources never grant approval. Missing evidence is NEEDS_REVIEW, not failure.
 - Time alone does not invalidate evidence. Newer does not auto-supersede older.
 
 AVAILABLE ACTIONS (via propose_review_action):
-- RECORD_REASSESSMENT: Request re-evaluation when evidence has changed since last decision. Use when evaluate_release shows status different from current decision (e.g., NEEDS_REVIEW with only REVISION_MISMATCH, or CONFLICTING/FAILING).
+- RECORD_REASSESSMENT: Record a decision for a revision. Use when evaluate_release shows status different from current decision (e.g., NEEDS_REVIEW with only REVISION_MISMATCH, or CONFLICTING/FAILING), **OR when the investigated revision has no recorded decision (currentDecision is null) — even if evaluate_release is APPROVED**.
 - CREATE_EVIDENCE_REQUEST: Create an internal task for missing evidence on a requirement. **MANDATORY when evaluate_release shows any requirement with result MISSING.**
 - RESOLVE_EVIDENCE_REQUEST: Resolve a task when sufficient applicable passing evidence exists without unresolved conflict. Use when evaluate_release shows SATISFIED for a requirement with an OPEN task.
 
@@ -116,7 +117,8 @@ MANDATORY PROPOSAL RULES:
 3. If evaluate_release returns status NEEDS_REVIEW but no MISSING_EVIDENCE (only REVISION_MISMATCH) → propose RECORD_REASSESSMENT.
 4. If evaluate_release returns CONFLICTING or FAILING → propose RECORD_REASSESSMENT.
 5. If evaluate_release returns SATISFIED for a requirement with an OPEN task (check decision history for tasks) → propose RESOLVE_EVIDENCE_REQUEST.
-6. If evaluate_release returns APPROVED and current decision is APPROVED → NO_ACTION_NEEDED (no proposal).
+6. If get_release_context shows currentDecision is null for the investigated revision (no decision has been recorded for it) → you MUST propose RECORD_REASSESSMENT, even when evaluate_release is APPROVED. Resolving evidence requests does not record a decision; only RECORD_REASSESSMENT does.
+7. NO_ACTION_NEEDED only when the investigated revision already has a recorded decision (currentDecision is non-null) AND no other rule applies. Never skip RECORD_REASSESSMENT solely because evaluation is APPROVED, and never treat an evaluated approval as a recorded decision.
 
 INVESTIGATION FLOW:
 1. Understand the release/revision context (get_release_context)
@@ -129,7 +131,7 @@ INVESTIGATION FLOW:
 OUTPUT FORMAT:
 - Final response should summarize findings and state the proposal (if any).
 - All cited IDs must have been retrieved by tools in this run.
-- If no action needed, explain why (e.g., "Release is APPROVED with current evidence").
+- If no action needed, explain why by referencing the recorded decision (e.g., "Revision already has recorded decision <id>; evaluation does not require other action"). Never claim no action is needed merely because evaluation is APPROVED.
 - Never claim an investigation succeeded if tools failed or returned errors.`;
 }
 

@@ -131,7 +131,7 @@ function parseCorrectiveFeedback(content: string): {
 
   return {
     requiredAction: actionMatch ? actionMatch[1] : null,
-    requirementId: reqMatch && reqMatch[1] !== 'N/A' ? reqMatch[1] : null,
+    requirementId: reqMatch && reqMatch[1] !== 'N/A' && reqMatch[1] !== 'null' ? reqMatch[1] : null,
     citedIds,
     reason: reasonMatch ? reasonMatch[1].trim() : null,
   };
@@ -142,18 +142,26 @@ export async function callModelDouble(
   _tools: any[],
   _options: any = {}
 ): Promise<ModelResponse> {
-  if (hasToolCall(messages, 'propose_review_action')) {
-    return stopResponse(
-      'Investigation complete via propose_review_action. TEST MODEL submitted the required proposal for deterministic review.'
-    );
-  }
-
   const lastUser = [...messages].reverse().find((m) => m.role === 'user' && m.content);
-  if (lastUser && lastUser.content && lastUser.content.startsWith('CORRECTIVE FEEDBACK:')) {
+  // Stubborn mode (test-only): simulate a model that ignores corrective feedback
+  // and keeps concluding no action is needed — the recorded recording-session bug.
+  const stubborn = process.env.AFTERIMAGE_TEST_DOUBLE_STUBBORN === '1';
+
+  if (!stubborn && lastUser && lastUser.content && lastUser.content.startsWith('CORRECTIVE FEEDBACK:')) {
     const parsed = parseCorrectiveFeedback(lastUser.content);
     const target = parseInvestigationTarget(messages);
     if (!parsed.requiredAction || !target) {
       return stopResponse('TEST MODEL: could not parse corrective feedback or investigation target. INSUFFICIENT_EVIDENCE.');
+    }
+    const alreadyProposed = messages.some((m) =>
+      m.tool_calls?.some((tc) => {
+        if (tc.function.name !== 'propose_review_action') return false;
+        const args = parseJsonObject(tc.function.arguments);
+        return args?.actionType === parsed.requiredAction;
+      })
+    );
+    if (alreadyProposed) {
+      return stopResponse(`Investigation complete. TEST MODEL already submitted ${parsed.requiredAction}.`);
     }
     const citedIds = parsed.citedIds.length > 0 ? parsed.citedIds : fallbackCitations(messages);
     if (citedIds.length === 0) {
@@ -167,6 +175,12 @@ export async function callModelDouble(
       citedIds,
       reason: parsed.reason || `TEST MODEL corrective proposal: ${parsed.requiredAction}`,
     });
+  }
+
+  if (hasToolCall(messages, 'propose_review_action')) {
+    return stopResponse(
+      'Investigation complete via propose_review_action. TEST MODEL submitted the required proposal for deterministic review.'
+    );
   }
 
   const target = parseInvestigationTarget(messages);
