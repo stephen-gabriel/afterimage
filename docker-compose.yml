@@ -1,23 +1,26 @@
+﻿# AFTERIMAGE — local FalkorDB only. No application process, no model mode.
+# Default application startup is real-provider (OpenRouter); see README §4–§5.
+# AFTERIMAGE_TEST_MODEL_DOUBLE is not set here (stays disabled / absent).
 version: '3.8'
 
 services:
-  falkordb:
-    image: falkordb/falkordb:latest
-    container_name: falkordb-afterimage
-    ports:
-      - "6379:6379"
-    volumes:
-      - falkordb-afterimage-data:/data
-    environment:
-      - AUTH_SECRET=afterimage-secret-change-in-production
-      - ENCRYPTION_KEY=afterimage-encryption-key-change-in-production
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+ falkordb:
+ image: falkordb/falkordb:latest
+ container_name: falkordb-afterimage
+ ports:
+ - "6379:6379"
+ volumes:
+ - falkordb-afterimage-data:/data
+ environment:
+ - AUTH_SECRET=afterimage-secret-change-in-production
+ - ENCRYPTION_KEY=afterimage-encryption-key-change-in-production
+ restart: unless-stopped
+ healthcheck:
+ test: ["CMD", "redis-cli", "ping"]
+ interval: 10s
+ timeout: 5s
+ retries: 5
 
 volumes:
-  falkordb-afterimage-data:
-    name: falkordb-afterimage-data
+ falkordb-afterimage-data:
+ name: falkordb-afterimage-data

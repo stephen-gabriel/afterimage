@@ -1,7 +1,7 @@
-# AFTERIMAGE — Demo walkthrough
+﻿# AFTERIMAGE — Demo walkthrough
 
-A screen-by-screen script for a live (or recorded) demonstration.  
-**Target duration:** ~8–12 minutes.  
+A screen-by-screen script for a live (or recorded) demonstration. 
+**Target duration:** ~8–12 minutes. 
 **Data:** synthetic only. No real CI runs, deployments, or external user data.
 
 ---
@@ -10,19 +10,29 @@ A screen-by-screen script for a live (or recorded) demonstration.
 
 | Item | Requirement |
 | --- | --- |
-| FalkorDB | Docker container `falkordb-afterimage` healthy on `localhost:6379` |
+| FalkorDB | Docker container `falkordb-afterimage` healthy on `localhost:6379` (**local to this machine only**) |
 | Graph | **Dedicated demo graph** (e.g. `FALKORDB_GRAPH=afterimage_demo`). **Never** reset `afterimage_workspace`, `afterimage_stage4_flow_test`, or `afterimage_stage4_real_model`. |
 | Seed | `cd backend && npm run seed` against the demo graph (idempotent; skips if workspace exists) |
-| Mode | **Live provider** for real investigation runs, **or** `AFTERIMAGE_TEST_MODEL_DOUBLE=1` + non-default graph for deterministic TEST MODEL (badge must show **TEST MODEL · deterministic-v1**) |
-| UI | Production build served by backend: `npm run build` (frontend) → `npm run build` (backend) → `npm start` → open `http://localhost:<PORT>/` |
-| Presenter | Knows: reverse `DEPENDS_ON` traversal; evidence scoped to **revision**; policy is deterministic; proposals are **internal** and human-applied; **reassessment (decision) ≠ task resolution** |
+| Mode | **Default: live provider** (OpenRouter; **judges supply their own API key**). Optional TEST MODEL is off unless you set `AFTERIMAGE_TEST_MODEL_DOUBLE=1` **and** use a non-default graph (badge must show **TEST MODEL / deterministic-v1**). |
+| UI | Production build served by backend: `npm run build` (frontend) → `npm run build` (backend) → `npm start` → open `http://localhost:<PORT>/` (**local URL only**; not a public deployment) |
+| Presenter | Knows: reverse `DEPENDS_ON` traversal; evidence scoped to **revision**; policy is deterministic; proposals are **internal** and human-applied; **reassessment (decision) is not task resolution** |
 
-**Demo-only env pattern (do not use on preview/real graphs):**
+**Demo-only env pattern for live provider (default):**
 
 ```bash
 # backend/.env or process env for this process only
 FALKORDB_GRAPH=afterimage_demo
-AFTERIMAGE_TEST_MODEL_DOUBLE=1   # only if showing TEST MODEL path
+PORT=3011
+# OPENROUTER_API_KEY — your own key (judges use theirs on their machine)
+# Do not set AFTERIMAGE_TEST_MODEL_DOUBLE (real provider mode)
+```
+
+**Optional TEST MODEL path (separate; not default):**
+
+```bash
+# only if showing deterministic TEST MODEL on an isolated graph
+FALKORDB_GRAPH=afterimage_demo
+AFTERIMAGE_TEST_MODEL_DOUBLE=1
 PORT=3011
 # OPENROUTER_API_KEY still required by validateConfig at boot; double makes no live model HTTP calls
 ```
@@ -53,8 +63,8 @@ PORT=3011
 
 **Actions:**
 
-1. Point at revision chip, dependency chip (`payment-api 2.0.0`), requirement row, evidence row.  
-2. Open **one evidence RecordRef** in the inspector: show full ID, fields, “Applies to this revision.”  
+1. Point at revision chip, dependency chip (`payment-api 2.0.0`), requirement row, evidence row. 
+2. Open **one evidence RecordRef** in the inspector: show full ID, fields, “Applies to this revision.” 
 3. Open **History** tab briefly: one approved decision; mention history is immutable.
 
 **Optional Connections tab:** path sentences only (no diagram). Say impact is reverse Cypher on `DEPENDS_ON`, not a hardcoded list.
@@ -75,7 +85,7 @@ Leave docs open or return to checkout.
 
 ## 4. Dependency change (1 min)
 
-**Screen:** `checkout-r1` Status (or any release page).  
+**Screen:** `checkout-r1` Status (or any release page). 
 **UI path:** “Record a change” → dependency version change event.
 
 **Payload shape (conceptual):**
@@ -122,10 +132,10 @@ Show: previous decision listed; current revision does not reuse the old decision
 
 **What happens (presenter understanding):**
 
-1. Server captures `snapshotRevision`.  
-2. Model (live or TEST MODEL) chooses tools from a **fixed list** (max 8 tool calls).  
-3. Tools hit the **same FalkorDB query layer** as the UI (`get_release_context`, `find_affected_releases`, etc.).  
-4. Policy evaluation in the tool loop is **deterministic**; the model cannot approve by prose.  
+1. Server captures `snapshotRevision`. 
+2. Model (live or TEST MODEL) chooses tools from a **fixed list** (max 8 tool calls). 
+3. Tools hit the **same FalkorDB query layer** as the UI (`get_release_context`, `find_affected_releases`, etc.). 
+4. Policy evaluation in the tool loop is **deterministic**; the model cannot approve by prose. 
 5. Run stores steps, cited IDs, explanation, and proposals.
 
 **Narration while it runs:**
@@ -139,7 +149,7 @@ Show: previous decision listed; current revision does not reuse the old decision
 | **Findings** | Explanation of revision mismatch / missing v3-scoped evidence |
 | **Proposals** | One or more cards (see §7 for valid orders) |
 | **Tool activity** (expand) | Ordered steps, args, summaries, returned IDs — “observable actions, not private chain-of-thought” |
-| Run meta | Provider/model, or **TEST MODEL · deterministic-v1** badge |
+| Run meta | Provider/model, or **TEST MODEL / deterministic-v1** badge |
 
 **If live quota fails:** run shows explicit failure / no fabricated success. Offer TEST MODEL mode on an isolated graph, or continue with recorded real-provider evidence from the verification session (do not invent a run).
 
@@ -151,18 +161,18 @@ The agent may propose **CREATE_EVIDENCE_REQUEST** and/or **RESOLVE_EVIDENCE_REQU
 
 ### Order A — request first, then evidence, then reassess
 
-1. Apply **Create evidence request** (exact-scope v3 integration test).  
-2. **Requests** page: one **OPEN** task for checkout-r1; linked requirement + creating proposal.  
-3. Record matching **synthetic PASS** for the **new** revision + requirement (Record a change → test recorded).  
-4. Status may still be Needs review until an explicit decision is recorded.  
-5. Investigate / apply **Record reassessment** (or model proposes RESOLVE then RECORD).  
+1. Apply **Create evidence request** (exact-scope v3 integration test). 
+2. **Requests** page: one **OPEN** task for checkout-r1; linked requirement + creating proposal. 
+3. Record matching **synthetic PASS** for the **new** revision + requirement (Record a change → test recorded). 
+4. Status may still be Needs review until an explicit decision is recorded. 
+5. Investigate / apply **Record reassessment** (or model proposes RESOLVE then RECORD). 
 6. Task becomes **RESOLVED**; decision appears; release **Approved** if policy is satisfied.
 
 ### Order B — evidence already present, resolve + reassess
 
-1. If matching evidence already exists when the agent runs, it may propose **RESOLVE_EVIDENCE_REQUEST** and/or **RECORD_REASSESSMENT**.  
-2. Apply resolve → task **RESOLVED** (resolution links evidence; `resolvedByDecisionId` may be null if no decision assessed that revision yet).  
-3. Apply reassessment → policy runs → decision recorded → release status updates.  
+1. If matching evidence already exists when the agent runs, it may propose **RESOLVE_EVIDENCE_REQUEST** and/or **RECORD_REASSESSMENT**. 
+2. Apply resolve → task **RESOLVED** (resolution links evidence; `resolvedByDecisionId` may be null if no decision assessed that revision yet). 
+3. Apply reassessment → policy runs → decision recorded → release status updates. 
 4. **Critical line:** *“The request being resolved means the internal task is closed because matching evidence exists. It does **not** mean the release is approved until a decision is recorded.”*
 
 **On every apply:** confirmation dialog states this updates **internal records only**. Stale proposals (workspace changed mid-run) must be discarded and the investigation re-run—not force-applied.
@@ -187,10 +197,10 @@ Optional: show a second event path only if time allows (withdraw / supersede / c
 
 **Checklist before closing the story:**
 
-- [ ] Current decision **ASSESSES** the **new** revision  
-- [ ] Decision **SUPPORTED_BY** the v3 PASS evidence ID  
-- [ ] History still shows the **prior** approval  
-- [ ] Requests: matching task **RESOLVED** with evidence (and decision link only if the server set one)  
+- [ ] Current decision **ASSESSES** the **new** revision 
+- [ ] Decision **SUPPORTED_BY** the v3 PASS evidence ID 
+- [ ] History still shows the **prior** approval 
+- [ ] Requests: matching task **RESOLVED** with evidence (and decision link only if the server set one) 
 - [ ] docs-r1 still **Approved** (selective impact)
 
 **Narration:**
@@ -203,10 +213,10 @@ Optional: show a second event path only if time allows (withdraw / supersede / c
 
 **Summarize in one breath:**
 
-1. Graph in FalkorDB is the memory of *why* approval held.  
-2. Dependency change → new revision → selective **Needs review**.  
-3. Agent **investigates with tools** and proposes **internal** actions.  
-4. Human applies; server re-validates.  
+1. Graph in FalkorDB is the memory of *why* approval held. 
+2. Dependency change → new revision → selective **Needs review**. 
+3. Agent **investigates with tools** and proposes **internal** actions. 
+4. Human applies; server re-validates. 
 5. Policy + explicit decision change status; history stays.
 
 **Limitations (say aloud):** single-process MVP; synthetic evidence; free-model quotas; not a production gate.
@@ -222,7 +232,7 @@ Optional: show a second event path only if time allows (withdraw / supersede / c
 | Who can approve? | Deterministic policy evaluation + recorded Decision—not model free text |
 | What do proposals do? | Create/resolve **internal** ReviewTasks or record reassessment; human applies; server checks revision |
 | Does resolved task = approved release? | **No.** Resolution closes the request; approval needs a current decision |
-| What is TEST MODEL? | Deterministic tool-loop double; only when double env is on **and** graph ≠ default `afterimage_workspace` |
+| What is TEST MODEL? | Deterministic tool-loop double; only when double env is on **and** graph is not default `afterimage_workspace` |
 
 ---
 
@@ -240,6 +250,6 @@ Optional: show a second event path only if time allows (withdraw / supersede / c
 
 ## Related materials
 
-- Root [`README.md`](../README.md) — setup, modes, graph model pointers, AI disclosure  
-- [`docs/GRAPH_MODEL.md`](GRAPH_MODEL.md) — nodes, relationship directions, Cypher module map, policy summary  
-- Application source under [`backend/`](../backend/) — API, evaluation, agent tools, seed fixtures  
+- Root [`README.md`](../README.md) — setup, modes, graph model pointers, AI disclosure 
+- [`docs/GRAPH_MODEL.md`](GRAPH_MODEL.md) — nodes, relationship directions, Cypher module map, policy summary 
+- Application source under [`backend/`](../backend/) — API, evaluation, agent tools, seed fixtures 
