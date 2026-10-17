@@ -338,6 +338,7 @@ Always use a **dedicated demo graph** for rehearsals so preview/real verificatio
 | Public repository | https://github.com/stephen-gabriel/afterimage |
 | Demo video | **Not recorded in this tree** (walkthrough prepared for recording) |
 | Deployment URL | **None** — local setup is the supported path |
+| License | [MIT](LICENSE) — © 2026 Stephen Gabriel |
 
 ---
 
@@ -376,4 +377,6 @@ AI-generated code and prose were treated as drafts that the participant reviewed
 
 ## 12. License and contact
 
-Application code: see `backend/package.json` / project owner terms (no separate LICENSE file in this tree at time of writing). For questions related to this prototype, use the team’s event/hackathon contact channels associated with **Onyx-Labs**.
+This project is licensed under the [MIT License](LICENSE). Copyright © 2026 Stephen Gabriel.
+
+For questions related to this prototype, use the team’s event/hackathon contact channels associated with **Onyx-Labs**.
